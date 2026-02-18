@@ -7,10 +7,11 @@ from typing import Any, Dict, List, Optional, Tuple, TypedDict
 
 import jpype
 import jpype.imports
-from .alignment import align_texts, make_aligner
 from Bio import Align
 from jpype.types import *
 from typing_extensions import NotRequired
+
+from .alignment import align_texts, make_aligner
 
 # Start JVM (point to your JDK if not on PATH)
 if not jpype.isJVMStarted():
@@ -29,6 +30,35 @@ class SpanRecord(TypedDict):
     text: str
     Category: str
     Subtype: NotRequired[str]
+
+
+__all__ = [
+    "SpanRecord",
+    "labeled_to_annotations",
+    "is_premature_stop_aligned",
+    "remove_html_spans",
+    "strip_trailing_broken_spans",
+    "remap_annotations_to_original",
+    "spans_to_annotations",
+    "annotations_to_spans",
+    "normalize_to_inception_tokens",
+    "transform_spans_inception",
+    "salvage_json_list",
+    "parse_json_list",
+    "find_all_occurrences",
+    "extract_dict_spans",
+    "extract_tuple_spans",
+    "trim_span",
+    "normalize_spans",
+    "deduplicate_spans",
+    "DEFAULT_DEDUCE_TO_WORKFLOW_LABEL",
+    "DEFAULT_WORKFLOW_TO_DEDUCE_TAG",
+    "workflow_label_to_deduce_tag",
+    "deduce_annotation_to_workflow",
+    "deduce_annotations_to_workflow",
+    "workflow_annotation_to_deduce",
+    "workflow_annotations_to_deduce",
+]
 
 
 # ------- Old labeling format: text replaced by [LABEL_NAME] ------- #
@@ -804,3 +834,18 @@ def deduplicate_spans(spans: List[Dict]) -> List[Dict]:
         s.pop("_orig_begin", None)
 
     return kept
+
+
+# ------- Conversion re-exports ------- #
+#
+# Keep conversion logic in span_annotations.conversion,
+# while exposing it here for users importing from transform.
+from .deduce import (
+    DEFAULT_DEDUCE_TO_WORKFLOW_LABEL,
+    DEFAULT_WORKFLOW_TO_DEDUCE_TAG,
+    deduce_annotation_to_workflow,
+    deduce_annotations_to_workflow,
+    workflow_annotation_to_deduce,
+    workflow_annotations_to_deduce,
+    workflow_label_to_deduce_tag,
+)

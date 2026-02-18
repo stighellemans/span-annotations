@@ -392,11 +392,12 @@ def evaluate_span_edits(
     label_key: str = "label",
 ) -> Dict[str, Any]:
     """
-    Compute minimal operations to transform pred -> gold using:
+    Compute minimal operations as an annotation-effort evaluation measure:
       1) Addition  (add a new span when no span exists on that exact substring)
       2) Deletion    (remove a span that should not exist)
       3) Edit   (same substring, wrong label)
     Identity of a span is (begin, end). Overlaps don't matter; only exact substring match counts.
+    Lower operation counts indicate better annotation quality.
     """
     pred_by_key = {_key(s): s for s in pred_spans}
     gold_by_key = {_key(s): s for s in gold_spans}
