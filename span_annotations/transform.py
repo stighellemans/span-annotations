@@ -43,6 +43,7 @@ __all__ = [
     "annotations_to_spans",
     "normalize_to_inception_tokens",
     "split_label_into_category_subtype",
+    "batch_split_label_into_category_subtype",
     "salvage_json_list",
     "parse_json_list",
     "find_all_occurrences",
@@ -245,7 +246,7 @@ def _spans_to_raw_annotations(text: str) -> List[SpanRecord]:
                     "text": "".join(clean[opened["begin"] : clean_idx]),
                 }
             )
-    annotations = split_label_into_category_subtype(annotations)
+    annotations = batch_split_label_into_category_subtype(annotations)
 
     return annotations
 
@@ -494,21 +495,38 @@ def normalize_to_inception_tokens(
 
 
 def split_label_into_category_subtype(
-    span_annotation: List[Dict[str, str | int]],
-) -> List[SpanRecord]:
+    span_annotation: Dict[str, str | int],
+) -> Dict[str, str | int]:
     """
-    Convert list of span annotations with 'begin', 'end', 'label', 'text' keys
-    to list of tuples (begin, end, label, text) as expected by Inception upload.
+    Convert a span annotation with 'label' key into 'Category' and
+    optionally 'Subtype' keys as expected by Inception upload.
     """
-    for span in span_annotation:
-        category = span["label"].split(":")[0]
-        subtype = span["label"].split(":")[1] if ":" in span["label"] else None
-        span["Category"] = category
+    category = span_annotation["label"].split(":")[0]
+    subtype = (
+        span_annotation["label"].split(":")[1]
+        if ":" in span_annotation["label"]
+        else None
+    )
+    span_annotation["Category"] = category
 
-        if subtype:
-            span["Subtype"] = subtype
+    if subtype:
+        span_annotation["Subtype"] = subtype
 
     return span_annotation
+
+
+def batch_split_label_into_category_subtype(
+    span_annotations: List[Dict[str, str | int]],
+) -> List[Dict[str, str | int]]:
+    """
+    Convert list of span annotations with 'begin', 'end', 'label', 'text'
+    keys to add 'Category' and optionally 'Subtype' keys as expected by
+    Inception upload.
+    """
+    for span_annotation in span_annotations:
+        span_annotation = split_label_into_category_subtype(span_annotation)
+
+    return span_annotations
 
 
 # ------- JSON ---------- #
