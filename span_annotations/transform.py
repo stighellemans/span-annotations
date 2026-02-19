@@ -42,7 +42,7 @@ __all__ = [
     "spans_to_annotations",
     "annotations_to_spans",
     "normalize_to_inception_tokens",
-    "transform_spans_inception",
+    "split_label_into_category_subtype",
     "salvage_json_list",
     "parse_json_list",
     "find_all_occurrences",
@@ -245,7 +245,7 @@ def _spans_to_raw_annotations(text: str) -> List[SpanRecord]:
                     "text": "".join(clean[opened["begin"] : clean_idx]),
                 }
             )
-    annotations = transform_spans_inception(annotations)
+    annotations = split_label_into_category_subtype(annotations)
 
     return annotations
 
@@ -493,7 +493,7 @@ def normalize_to_inception_tokens(
     return deduplicate_spans(candidates)
 
 
-def transform_spans_inception(
+def split_label_into_category_subtype(
     span_annotation: List[Dict[str, str | int]],
 ) -> List[SpanRecord]:
     """
