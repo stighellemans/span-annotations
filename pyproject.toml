@@ -22,3 +22,6 @@ classifiers = [
 
 [tool.setuptools]
 packages = ["span_annotations"]
+
+[tool.setuptools.package-data]
+span_annotations = ["py.typed"]
