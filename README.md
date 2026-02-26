@@ -50,9 +50,10 @@ print(make_aligner().mode)
 
 Important:
 
-- `span_annotations.transform` and `span_annotations.evaluation` initialize a JVM on import using `jpype`.
-- You need a working Java runtime (JRE/JDK) available in your environment for imports of those modules.
-- JVM startup is guarded with `jpype.isJVMStarted()`, so repeated imports are safe.
+- `span_annotations.transform` and `span_annotations.evaluation` use Java (`jpype` + `BreakIterator`) only for tokenization helpers (for example `normalize_to_inception_tokens`, `segment_tokens`, and evaluation functions that tokenize text).
+- These modules no longer start a JVM on import; JVM startup happens lazily when a BreakIterator-based helper is called.
+- If JPype is misinstalled (for example `Can't find org.jpype.jar`), non-Java helpers can still be imported and used, while Java-dependent helpers will raise a clearer runtime error.
+- You still need a working Java runtime (JRE/JDK) for BreakIterator-based helpers.
 
 ## Annotation data model
 

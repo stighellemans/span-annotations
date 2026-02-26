@@ -2,17 +2,39 @@ from typing import Any, Dict, List, Tuple
 
 import jpype
 import jpype.imports
-from jpype.types import *
 
-# Start JVM (point to your JDK if not on PATH)
-if not jpype.isJVMStarted():
-    jpype.startJVM(classpath=[])
+_BREAK_ITERATOR = None
+_JAVA_LOCALE = None
 
-from java.text import BreakIterator
-from java.util import Locale
+
+def _get_java_tokenizer_classes():
+    global _BREAK_ITERATOR, _JAVA_LOCALE
+
+    if _BREAK_ITERATOR is not None and _JAVA_LOCALE is not None:
+        return _BREAK_ITERATOR, _JAVA_LOCALE
+
+    try:
+        if not jpype.isJVMStarted():
+            jpype.startJVM(classpath=[])
+
+        from java.text import BreakIterator as JavaBreakIterator
+        from java.util import Locale as JavaLocale
+    except Exception as exc:
+        raise RuntimeError(
+            "Java tokenization is unavailable. This module only needs JPype/Java "
+            "for BreakIterator-based tokenization helpers. "
+            "If you see \"Can't find org.jpype.jar\", reinstall jpype1 in this "
+            "environment (`python -m pip install --force-reinstall jpype1`) and "
+            "ensure a JRE/JDK is installed."
+        ) from exc
+
+    _BREAK_ITERATOR = JavaBreakIterator
+    _JAVA_LOCALE = JavaLocale
+    return _BREAK_ITERATOR, _JAVA_LOCALE
 
 
 def segment_tokens(text: str, lang: str = "nl") -> list[str]:
+    BreakIterator, Locale = _get_java_tokenizer_classes()
     # Pick locale
     locale = Locale(lang)
     bi = BreakIterator.getWordInstance(locale)
@@ -32,6 +54,7 @@ def segment_tokens(text: str, lang: str = "nl") -> list[str]:
 
 # --- Tokenization with offsets via BreakIterator ---
 def tokens_with_offsets(text: str, lang: str = "nl"):
+    BreakIterator, Locale = _get_java_tokenizer_classes()
     locale = Locale(lang)
     bi = BreakIterator.getWordInstance(locale)
     bi.setText(text)
