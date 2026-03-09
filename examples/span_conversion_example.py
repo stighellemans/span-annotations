@@ -1,10 +1,10 @@
-"""Example script for standalone workflow/Deduce conversion."""
+"""Example script for standalone span/Deduce conversion."""
 
 import docdeid as dd
 
 from span_annotations.transform import (
-    deduce_annotations_to_workflow,
-    workflow_annotations_to_deduce,
+    deduce_annotations_to_spans,
+    spans_to_deduce_annotations,
 )
 
 
@@ -24,13 +24,13 @@ def main() -> None:
         ),
     ]
 
-    workflow_annotations = deduce_annotations_to_workflow(deduce_annotations)
-    print("Deduce -> workflow")
-    for annotation in workflow_annotations:
+    span_annotations = deduce_annotations_to_spans(deduce_annotations)
+    print("Deduce -> span")
+    for annotation in span_annotations:
         print(annotation)
 
-    roundtrip = workflow_annotations_to_deduce(workflow_annotations)
-    print("\nWorkflow -> Deduce")
+    roundtrip = spans_to_deduce_annotations(span_annotations)
+    print("\nSpan -> Deduce")
     for annotation in roundtrip:
         print(annotation)
 

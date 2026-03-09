@@ -233,10 +233,6 @@ def test_trim_normalize_and_deduplicate_spans():
 def test_transform_re_exports_conversion_api():
     from span_annotations import deduce
 
-    assert transform.workflow_label_to_deduce_tag is deduce.workflow_label_to_deduce_tag
-    assert (
-        transform.workflow_annotation_to_deduce is deduce.workflow_annotation_to_deduce
-    )
-    assert (
-        transform.deduce_annotation_to_workflow is deduce.deduce_annotation_to_workflow
-    )
+    assert transform.span_label_to_deduce_tag is deduce.span_label_to_deduce_tag
+    assert transform.span_to_deduce_annotation is deduce.span_to_deduce_annotation
+    assert transform.deduce_annotation_to_span is deduce.deduce_annotation_to_span

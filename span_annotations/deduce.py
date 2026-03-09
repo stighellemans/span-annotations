@@ -1,4 +1,4 @@
-"""Helpers to convert annotations between Deduce and workflow schemas."""
+"""Helpers to convert annotations between Deduce and span schemas."""
 
 from __future__ import annotations
 
@@ -8,17 +8,17 @@ from typing import Any, Optional
 import docdeid as dd
 
 __all__ = [
-    "DEFAULT_DEDUCE_TO_WORKFLOW_LABEL",
-    "DEFAULT_WORKFLOW_TO_DEDUCE_TAG",
-    "workflow_label_to_deduce_tag",
-    "deduce_annotation_to_workflow",
-    "deduce_annotations_to_workflow",
-    "workflow_annotation_to_deduce",
-    "workflow_annotations_to_deduce",
+    "DEFAULT_DEDUCE_TO_SPAN_LABEL",
+    "DEFAULT_SPAN_TO_DEDUCE_TAG",
+    "span_label_to_deduce_tag",
+    "deduce_annotation_to_span",
+    "deduce_annotations_to_spans",
+    "span_to_deduce_annotation",
+    "spans_to_deduce_annotations",
 ]
 
-# Default mapping from Deduce tags to workflow labels.
-DEFAULT_DEDUCE_TO_WORKFLOW_LABEL = {
+# Default mapping from Deduce tags to span labels.
+DEFAULT_DEDUCE_TO_SPAN_LABEL = {
     "patient": "Name:Patient",
     "persoon": "Name:Other",
     "locatie": "Address_Location:Other",
@@ -33,8 +33,8 @@ DEFAULT_DEDUCE_TO_WORKFLOW_LABEL = {
     "ziekenhuis": "Organization:Healthcare",
 }
 
-# Default canonical mapping from workflow labels to Deduce tags.
-DEFAULT_WORKFLOW_TO_DEDUCE_TAG = {
+# Default canonical mapping from span labels to Deduce tags.
+DEFAULT_SPAN_TO_DEDUCE_TAG = {
     "Address_Location:Caregiver": "locatie",
     "Address_Location:Patient": "locatie",
     "Address_Location:Other": "locatie",
@@ -53,29 +53,29 @@ DEFAULT_WORKFLOW_TO_DEDUCE_TAG = {
 }
 
 
-def workflow_label_to_deduce_tag(
+def span_label_to_deduce_tag(
     label: str,
-    label_to_tag: Mapping[str, str] = DEFAULT_WORKFLOW_TO_DEDUCE_TAG,
+    label_to_tag: Mapping[str, str] = DEFAULT_SPAN_TO_DEDUCE_TAG,
     strict: bool = False,
 ) -> str:
-    """Map a workflow label to a Deduce tag."""
+    """Map a span label to a Deduce tag."""
 
     tag = label_to_tag.get(label)
     if tag is not None:
         return tag
     if strict:
-        raise KeyError(f"Workflow label is not in label_to_tag mapping: {label}")
+        raise KeyError(f"Span label is not in label_to_tag mapping: {label}")
 
     return label
 
 
-def deduce_annotation_to_workflow(
+def deduce_annotation_to_span(
     annotation: dd.Annotation | Mapping[str, Any],
     source_text: Optional[str] = None,
-    deduce_to_label: Mapping[str, str] = DEFAULT_DEDUCE_TO_WORKFLOW_LABEL,
+    deduce_to_label: Mapping[str, str] = DEFAULT_DEDUCE_TO_SPAN_LABEL,
     strict: bool = False,
 ) -> dict[str, Any]:
-    """Convert a Deduce annotation object/dict to workflow annotation format."""
+    """Convert a Deduce annotation object/dict to span annotation format."""
 
     begin, end, tag, ann_text, _priority = _read_deduce_annotation(
         annotation, source_text=source_text
@@ -99,16 +99,16 @@ def deduce_annotation_to_workflow(
     }
 
 
-def deduce_annotations_to_workflow(
+def deduce_annotations_to_spans(
     annotations: Iterable[dd.Annotation | Mapping[str, Any]],
     source_text: Optional[str] = None,
-    deduce_to_label: Mapping[str, str] = DEFAULT_DEDUCE_TO_WORKFLOW_LABEL,
+    deduce_to_label: Mapping[str, str] = DEFAULT_DEDUCE_TO_SPAN_LABEL,
     strict: bool = False,
 ) -> list[dict[str, Any]]:
-    """Convert multiple Deduce annotations to workflow annotation dictionaries."""
+    """Convert multiple Deduce annotations to span annotation dictionaries."""
 
     return [
-        deduce_annotation_to_workflow(
+        deduce_annotation_to_span(
             annotation=annotation,
             source_text=source_text,
             deduce_to_label=deduce_to_label,
@@ -118,13 +118,13 @@ def deduce_annotations_to_workflow(
     ]
 
 
-def workflow_annotation_to_deduce(
+def span_to_deduce_annotation(
     annotation: Mapping[str, Any],
     source_text: Optional[str] = None,
-    label_to_tag: Mapping[str, str] = DEFAULT_WORKFLOW_TO_DEDUCE_TAG,
+    label_to_tag: Mapping[str, str] = DEFAULT_SPAN_TO_DEDUCE_TAG,
     strict: bool = False,
 ) -> dd.Annotation:
-    """Convert a workflow annotation dictionary to a Deduce ``Annotation``."""
+    """Convert a span annotation dictionary to a Deduce ``Annotation``."""
 
     begin = _get_required_int(annotation, "begin", "start_char")
     end = _get_required_int(annotation, "end", "end_char")
@@ -134,7 +134,7 @@ def workflow_annotation_to_deduce(
     )
     priority = int(annotation.get("priority", 0))
 
-    tag = workflow_label_to_deduce_tag(
+    tag = span_label_to_deduce_tag(
         label=label,
         label_to_tag=label_to_tag,
         strict=strict,
@@ -149,16 +149,16 @@ def workflow_annotation_to_deduce(
     )
 
 
-def workflow_annotations_to_deduce(
+def spans_to_deduce_annotations(
     annotations: Iterable[Mapping[str, Any]],
     source_text: Optional[str] = None,
-    label_to_tag: Mapping[str, str] = DEFAULT_WORKFLOW_TO_DEDUCE_TAG,
+    label_to_tag: Mapping[str, str] = DEFAULT_SPAN_TO_DEDUCE_TAG,
     strict: bool = False,
 ) -> list[dd.Annotation]:
-    """Convert multiple workflow annotation dictionaries to Deduce annotations."""
+    """Convert multiple span annotation dictionaries to Deduce annotations."""
 
     return [
-        workflow_annotation_to_deduce(
+        span_to_deduce_annotation(
             annotation=annotation,
             source_text=source_text,
             label_to_tag=label_to_tag,

@@ -73,13 +73,13 @@ __all__ = [
     "trim_span",
     "normalize_spans",
     "deduplicate_spans",
-    "DEFAULT_DEDUCE_TO_WORKFLOW_LABEL",
-    "DEFAULT_WORKFLOW_TO_DEDUCE_TAG",
-    "workflow_label_to_deduce_tag",
-    "deduce_annotation_to_workflow",
-    "deduce_annotations_to_workflow",
-    "workflow_annotation_to_deduce",
-    "workflow_annotations_to_deduce",
+    "DEFAULT_DEDUCE_TO_SPAN_LABEL",
+    "DEFAULT_SPAN_TO_DEDUCE_TAG",
+    "span_label_to_deduce_tag",
+    "deduce_annotation_to_span",
+    "deduce_annotations_to_spans",
+    "span_to_deduce_annotation",
+    "spans_to_deduce_annotations",
 ]
 
 
@@ -878,14 +878,14 @@ def deduplicate_spans(spans: List[Dict]) -> List[Dict]:
 
 # ------- Conversion re-exports ------- #
 #
-# Keep conversion logic in span_annotations.conversion,
+# Keep Deduce bridge conversion logic in span_annotations.deduce,
 # while exposing it here for users importing from transform.
 from .deduce import (
-    DEFAULT_DEDUCE_TO_WORKFLOW_LABEL,
-    DEFAULT_WORKFLOW_TO_DEDUCE_TAG,
-    deduce_annotation_to_workflow,
-    deduce_annotations_to_workflow,
-    workflow_annotation_to_deduce,
-    workflow_annotations_to_deduce,
-    workflow_label_to_deduce_tag,
+    DEFAULT_DEDUCE_TO_SPAN_LABEL,
+    DEFAULT_SPAN_TO_DEDUCE_TAG,
+    deduce_annotation_to_span,
+    deduce_annotations_to_spans,
+    span_label_to_deduce_tag,
+    span_to_deduce_annotation,
+    spans_to_deduce_annotations,
 )

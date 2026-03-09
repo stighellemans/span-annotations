@@ -87,7 +87,7 @@ print(spans)
 # [{"begin": 8, "end": 20, "label": "Name", "text": "Jan Janssens", ...}]
 ```
 
-## Typical workflows
+## Typical usage
 
 ### A) Tagged text -> spans -> tagged text
 
@@ -186,13 +186,13 @@ Use this when:
 - You want an operation-based quality measure for predicted annotations.
 - Lower counts mean predictions are closer to gold annotations.
 
-### F) Convert between Deduce and workflow annotations
+### F) Convert between Deduce and span annotations
 
 ```python
 import docdeid as dd
 from span_annotations.transform import (
-    deduce_annotation_to_workflow,
-    workflow_annotation_to_deduce,
+    deduce_annotation_to_span,
+    span_to_deduce_annotation,
 )
 
 deduce_ann = dd.Annotation(
@@ -201,17 +201,17 @@ deduce_ann = dd.Annotation(
     end_char=792,
     tag="ziekenhuis",
 )
-workflow_ann = deduce_annotation_to_workflow(deduce_ann)
-roundtrip = workflow_annotation_to_deduce(workflow_ann)
+span_ann = deduce_annotation_to_span(deduce_ann)
+roundtrip = span_to_deduce_annotation(span_ann)
 
-print(workflow_ann)
+print(span_ann)
 print(roundtrip)
 ```
 
 Use this when:
 
-- You need bidirectional conversion between `docdeid.Annotation` and workflow span dicts.
-- You want a stable mapping between Deduce tags and workflow labels.
+- You need bidirectional conversion between `docdeid.Annotation` and span dicts.
+- You want a stable mapping between Deduce tags and span labels.
 
 ## API reference
 
@@ -336,45 +336,45 @@ Deduplicates by exact `(begin, end)` and removes strictly contained spans.
 These functions are available from both:
 
 - `span_annotations.transform` (same import style as the rest of the package)
-- `span_annotations.conversion`
+- `span_annotations.deduce`
 
-##### `workflow_label_to_deduce_tag(label, label_to_tag=..., strict=False)`
+##### `span_label_to_deduce_tag(label, label_to_tag=..., strict=False)`
 
-Maps a workflow label (e.g. `Name:Patient`) to a Deduce tag (e.g. `patient`).
+Maps a span label (e.g. `Name:Patient`) to a Deduce tag (e.g. `patient`).
 If unknown and `strict=False`, returns the input label unchanged.
 
 Example script:
-- `examples/example_workflow_label_to_deduce_tag.py`
+- `examples/example_span_label_to_deduce_tag.py`
 
-##### `deduce_annotation_to_workflow(annotation, source_text=None, deduce_to_label=..., strict=False)`
+##### `deduce_annotation_to_span(annotation, source_text=None, deduce_to_label=..., strict=False)`
 
-Converts one Deduce annotation (`docdeid.Annotation` or dict-like) into workflow format:
+Converts one Deduce annotation (`docdeid.Annotation` or dict-like) into span format:
 
 - `begin`, `end`, `label`, `text`, `Category`, `Subtype`
 
 Example script:
-- `examples/example_deduce_annotation_to_workflow.py`
+- `examples/example_deduce_annotation_to_span.py`
 
-##### `deduce_annotations_to_workflow(annotations, source_text=None, deduce_to_label=..., strict=False)`
+##### `deduce_annotations_to_spans(annotations, source_text=None, deduce_to_label=..., strict=False)`
 
-Batch version of `deduce_annotation_to_workflow`.
-
-Example script:
-- `examples/example_deduce_annotations_to_workflow.py`
-
-##### `workflow_annotation_to_deduce(annotation, source_text=None, label_to_tag=..., strict=False)`
-
-Converts one workflow annotation dict into `docdeid.Annotation`.
+Batch version of `deduce_annotation_to_span`.
 
 Example script:
-- `examples/example_workflow_annotation_to_deduce.py`
+- `examples/example_deduce_annotations_to_spans.py`
 
-##### `workflow_annotations_to_deduce(annotations, source_text=None, label_to_tag=..., strict=False)`
+##### `span_to_deduce_annotation(annotation, source_text=None, label_to_tag=..., strict=False)`
 
-Batch version of `workflow_annotation_to_deduce`.
+Converts one span annotation dict into `docdeid.Annotation`.
 
 Example script:
-- `examples/example_workflow_annotations_to_deduce.py`
+- `examples/example_span_to_deduce_annotation.py`
+
+##### `spans_to_deduce_annotations(annotations, source_text=None, label_to_tag=..., strict=False)`
+
+Batch version of `span_to_deduce_annotation`.
+
+Example script:
+- `examples/example_spans_to_deduce_annotations.py`
 
 ### `span_annotations.evaluation`
 
@@ -476,8 +476,8 @@ The `counts` object is the main metric output; it quantifies annotation mismatch
 - `labeled_to_annotations` raises `ValueError` if template and source text do not match.
 - `spans_to_annotations` may raise detailed `ValueError`s from remapping when alignment cannot produce contiguous valid mappings.
 - `parse_json_list` raises `ValueError` if the string does not contain recoverable list data.
-- Workflow bridge conversion functions raise `KeyError` in `strict=True` mode for unknown labels/tags.
-- Workflow bridge conversion functions raise `ValueError` when required fields (`begin/end`, label/category, text/source text) are missing.
+- Span bridge conversion functions raise `KeyError` in `strict=True` mode for unknown labels/tags.
+- Span bridge conversion functions raise `ValueError` when required fields (`begin/end`, label/category, text/source text) are missing.
 
 ## Performance notes
 
@@ -526,15 +526,15 @@ from span_annotations.transform import spans_to_annotations, annotations_to_span
 from span_annotations.evaluation import eval_token_level_io, evaluate_span_edits
 ```
 
-- Workflow bridge conversion:
+- Span bridge conversion:
 
 ```python
 from span_annotations.transform import (
-    deduce_annotation_to_workflow,
-    deduce_annotations_to_workflow,
-    workflow_annotation_to_deduce,
-    workflow_annotations_to_deduce,
-    workflow_label_to_deduce_tag,
+    deduce_annotation_to_span,
+    deduce_annotations_to_spans,
+    span_label_to_deduce_tag,
+    span_to_deduce_annotation,
+    spans_to_deduce_annotations,
 )
 ```
 
@@ -551,6 +551,6 @@ Current package layout:
 - `span_annotations/alignment.py`
 - `span_annotations/transform.py`
 - `span_annotations/evaluation.py`
-- `span_annotations/conversion.py`
+- `span_annotations/deduce.py`
 - `tests/test_conversion.py`
 - `examples/`

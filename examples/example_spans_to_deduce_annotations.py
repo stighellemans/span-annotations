@@ -1,15 +1,15 @@
-"""Example: convert multiple workflow annotations to Deduce annotations."""
+"""Example: convert multiple span annotations to Deduce annotations."""
 
-from span_annotations.transform import workflow_annotations_to_deduce
+from span_annotations.transform import spans_to_deduce_annotations
 
 
 def main() -> None:
-    workflow_annotations = [
+    span_annotations = [
         {"begin": 0, "end": 4, "label": "Date", "text": "2001"},
         {"begin": 5, "end": 12, "label": "Contactdetails", "text": "a@b.com"},
     ]
 
-    converted = workflow_annotations_to_deduce(workflow_annotations)
+    converted = spans_to_deduce_annotations(span_annotations)
     for annotation in converted:
         print(annotation)
 

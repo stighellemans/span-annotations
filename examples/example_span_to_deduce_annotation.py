@@ -1,6 +1,6 @@
-"""Example: convert one workflow annotation to a Deduce annotation."""
+"""Example: convert one span annotation to a Deduce annotation."""
 
-from span_annotations.transform import workflow_annotation_to_deduce
+from span_annotations.transform import span_to_deduce_annotation
 
 
 def main() -> None:
@@ -11,7 +11,7 @@ def main() -> None:
         "text": "AZ Monica",
     }
 
-    converted = workflow_annotation_to_deduce(annotation)
+    converted = span_to_deduce_annotation(annotation)
     print(converted)
 
 

@@ -3,50 +3,48 @@ import pytest
 
 from span_annotations import deduce
 from span_annotations.deduce import (
-    DEFAULT_DEDUCE_TO_WORKFLOW_LABEL,
-    DEFAULT_WORKFLOW_TO_DEDUCE_TAG,
-    deduce_annotation_to_workflow,
-    deduce_annotations_to_workflow,
-    workflow_annotation_to_deduce,
-    workflow_annotations_to_deduce,
-    workflow_label_to_deduce_tag,
+    DEFAULT_DEDUCE_TO_SPAN_LABEL,
+    DEFAULT_SPAN_TO_DEDUCE_TAG,
+    deduce_annotation_to_span,
+    deduce_annotations_to_spans,
+    span_label_to_deduce_tag,
+    span_to_deduce_annotation,
+    spans_to_deduce_annotations,
 )
 
 
 class TestConstants:
     def test_default_mapping_constants_have_expected_examples(self):
-        assert DEFAULT_DEDUCE_TO_WORKFLOW_LABEL["patient"] == "Name:Patient"
+        assert DEFAULT_DEDUCE_TO_SPAN_LABEL["patient"] == "Name:Patient"
         assert (
-            DEFAULT_DEDUCE_TO_WORKFLOW_LABEL["ziekenhuis"] == "Organization:Healthcare"
+            DEFAULT_DEDUCE_TO_SPAN_LABEL["ziekenhuis"] == "Organization:Healthcare"
         )
-        assert DEFAULT_WORKFLOW_TO_DEDUCE_TAG["Name:Patient"] == "patient"
-        assert DEFAULT_WORKFLOW_TO_DEDUCE_TAG["Contactdetails"] == "telefoonnummer"
+        assert DEFAULT_SPAN_TO_DEDUCE_TAG["Name:Patient"] == "patient"
+        assert DEFAULT_SPAN_TO_DEDUCE_TAG["Contactdetails"] == "telefoonnummer"
 
     def test_conversion_module_exports_match_package_exports(self):
-        assert deduce.deduce_annotation_to_workflow is deduce_annotation_to_workflow
-        assert deduce.workflow_annotation_to_deduce is workflow_annotation_to_deduce
-        assert deduce.workflow_label_to_deduce_tag is workflow_label_to_deduce_tag
+        assert deduce.deduce_annotation_to_span is deduce_annotation_to_span
+        assert deduce.span_to_deduce_annotation is span_to_deduce_annotation
+        assert deduce.span_label_to_deduce_tag is span_label_to_deduce_tag
 
 
-class TestWorkflowLabelToDeduceTag:
+class TestSpanLabelToDeduceTag:
     def test_known_label(self):
-        assert workflow_label_to_deduce_tag("Contactdetails") == "telefoonnummer"
+        assert span_label_to_deduce_tag("Contactdetails") == "telefoonnummer"
 
     def test_unknown_label_non_strict_returns_label(self):
-        assert (
-            workflow_label_to_deduce_tag("UnknownLabel", strict=False) == "UnknownLabel"
-        )
+        assert span_label_to_deduce_tag("UnknownLabel", strict=False) == "UnknownLabel"
 
     def test_unknown_label_strict_raises(self):
         with pytest.raises(KeyError):
-            workflow_label_to_deduce_tag("UnknownLabel", strict=True)
+            span_label_to_deduce_tag("UnknownLabel", strict=True)
 
     def test_custom_mapping(self):
         mapping = {"X": "custom_tag"}
-        assert workflow_label_to_deduce_tag("X", label_to_tag=mapping) == "custom_tag"
+        assert span_label_to_deduce_tag("X", label_to_tag=mapping) == "custom_tag"
 
 
-class TestDeduceAnnotationToWorkflow:
+class TestDeduceAnnotationToSpan:
     def test_from_deduce_annotation(self):
         annotation = dd.Annotation(
             text="AZ Monica",
@@ -56,7 +54,7 @@ class TestDeduceAnnotationToWorkflow:
             priority=7,
         )
 
-        converted = deduce_annotation_to_workflow(annotation)
+        converted = deduce_annotation_to_span(annotation)
 
         assert converted == {
             "begin": 783,
@@ -71,7 +69,7 @@ class TestDeduceAnnotationToWorkflow:
         source = "xxJan Jansenyy"
         annotation = {"begin": 2, "end": 12, "tag": "persoon"}
 
-        converted = deduce_annotation_to_workflow(annotation, source_text=source)
+        converted = deduce_annotation_to_span(annotation, source_text=source)
 
         assert converted["text"] == "Jan Jansen"
         assert converted["label"] == "Name:Other"
@@ -80,7 +78,7 @@ class TestDeduceAnnotationToWorkflow:
 
     def test_unknown_tag_non_strict_falls_back_to_tag(self):
         annotation = dd.Annotation(text="x", start_char=0, end_char=1, tag="unknown")
-        converted = deduce_annotation_to_workflow(annotation, strict=False)
+        converted = deduce_annotation_to_span(annotation, strict=False)
 
         assert converted["label"] == "unknown"
         assert converted["Category"] == "unknown"
@@ -89,22 +87,22 @@ class TestDeduceAnnotationToWorkflow:
     def test_unknown_tag_strict_raises(self):
         annotation = {"begin": 0, "end": 1, "tag": "unknown", "text": "x"}
         with pytest.raises(KeyError):
-            deduce_annotation_to_workflow(annotation, strict=True)
+            deduce_annotation_to_span(annotation, strict=True)
 
     def test_missing_text_and_source_text_raises(self):
         annotation = {"begin": 0, "end": 1, "tag": "patient"}
         with pytest.raises(ValueError):
-            deduce_annotation_to_workflow(annotation)
+            deduce_annotation_to_span(annotation)
 
 
-class TestDeduceAnnotationsToWorkflow:
+class TestDeduceAnnotationsToSpans:
     def test_multiple_annotations_conversion(self):
         annotations = [
             dd.Annotation(text="A", start_char=0, end_char=1, tag="patient"),
             {"start_char": 2, "end_char": 3, "tag": "datum", "text": "B"},
         ]
 
-        converted = deduce_annotations_to_workflow(annotations)
+        converted = deduce_annotations_to_spans(annotations)
 
         assert [annotation["label"] for annotation in converted] == [
             "Name:Patient",
@@ -112,7 +110,7 @@ class TestDeduceAnnotationsToWorkflow:
         ]
 
 
-class TestWorkflowAnnotationToDeduce:
+class TestSpanToDeduceAnnotation:
     def test_from_label(self):
         annotation = {
             "begin": 783,
@@ -121,7 +119,7 @@ class TestWorkflowAnnotationToDeduce:
             "text": "AZ Monica",
             "priority": 4,
         }
-        converted = workflow_annotation_to_deduce(annotation)
+        converted = span_to_deduce_annotation(annotation)
 
         assert converted == dd.Annotation(
             text="AZ Monica",
@@ -140,7 +138,7 @@ class TestWorkflowAnnotationToDeduce:
             "text": "Main Street",
         }
 
-        converted = workflow_annotation_to_deduce(annotation)
+        converted = span_to_deduce_annotation(annotation)
 
         assert converted == dd.Annotation(
             text="Main Street",
@@ -158,7 +156,7 @@ class TestWorkflowAnnotationToDeduce:
             "text": "2001",
         }
 
-        converted = workflow_annotation_to_deduce(annotation)
+        converted = span_to_deduce_annotation(annotation)
 
         assert converted == dd.Annotation(
             text="2001",
@@ -172,7 +170,7 @@ class TestWorkflowAnnotationToDeduce:
         text = "My id is 123456789."
         annotation = {"begin": 9, "end": 18, "label": "ID:Patient"}
 
-        converted = workflow_annotation_to_deduce(annotation, source_text=text)
+        converted = span_to_deduce_annotation(annotation, source_text=text)
 
         assert converted == dd.Annotation(
             text="123456789",
@@ -185,7 +183,7 @@ class TestWorkflowAnnotationToDeduce:
     def test_unknown_label_non_strict_falls_back_to_label(self):
         annotation = {"begin": 0, "end": 1, "label": "CustomLabel", "text": "x"}
 
-        converted = workflow_annotation_to_deduce(annotation, strict=False)
+        converted = span_to_deduce_annotation(annotation, strict=False)
 
         assert converted == dd.Annotation(
             text="x",
@@ -199,27 +197,27 @@ class TestWorkflowAnnotationToDeduce:
         annotation = {"begin": 0, "end": 1, "label": "CustomLabel", "text": "x"}
 
         with pytest.raises(KeyError):
-            workflow_annotation_to_deduce(annotation, strict=True)
+            span_to_deduce_annotation(annotation, strict=True)
 
     def test_missing_label_and_category_raises(self):
         annotation = {"begin": 0, "end": 1, "text": "x"}
         with pytest.raises(ValueError):
-            workflow_annotation_to_deduce(annotation)
+            span_to_deduce_annotation(annotation)
 
     def test_missing_text_and_source_text_raises(self):
         annotation = {"begin": 0, "end": 1, "label": "Date"}
         with pytest.raises(ValueError):
-            workflow_annotation_to_deduce(annotation)
+            span_to_deduce_annotation(annotation)
 
 
-class TestWorkflowAnnotationsToDeduce:
-    def test_multiple_workflow_annotations(self):
+class TestSpansToDeduceAnnotations:
+    def test_multiple_span_annotations(self):
         annotations = [
             {"begin": 0, "end": 4, "label": "Date", "text": "2001"},
             {"begin": 5, "end": 12, "label": "Contactdetails", "text": "a@b.com"},
         ]
 
-        converted = workflow_annotations_to_deduce(annotations)
+        converted = spans_to_deduce_annotations(annotations)
 
         assert converted == [
             dd.Annotation(text="2001", start_char=0, end_char=4, tag="datum"),

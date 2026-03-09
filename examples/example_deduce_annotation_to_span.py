@@ -1,8 +1,8 @@
-"""Example: convert one Deduce annotation to workflow format."""
+"""Example: convert one Deduce annotation to span format."""
 
 import docdeid as dd
 
-from span_annotations.transform import deduce_annotation_to_workflow
+from span_annotations.transform import deduce_annotation_to_span
 
 
 def main() -> None:
@@ -13,7 +13,7 @@ def main() -> None:
         tag="ziekenhuis",
     )
 
-    converted = deduce_annotation_to_workflow(annotation)
+    converted = deduce_annotation_to_span(annotation)
     print(converted)
 
 

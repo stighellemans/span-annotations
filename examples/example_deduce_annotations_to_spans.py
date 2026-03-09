@@ -1,8 +1,8 @@
-"""Example: convert multiple Deduce annotations to workflow format."""
+"""Example: convert multiple Deduce annotations to span format."""
 
 import docdeid as dd
 
-from span_annotations.transform import deduce_annotations_to_workflow
+from span_annotations.transform import deduce_annotations_to_spans
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
         ),
     ]
 
-    converted = deduce_annotations_to_workflow(deduce_annotations)
+    converted = deduce_annotations_to_spans(deduce_annotations)
     for annotation in converted:
         print(annotation)
 
